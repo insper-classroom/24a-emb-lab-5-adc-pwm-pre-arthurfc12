@@ -9,7 +9,7 @@
 #include "data.h"
 QueueHandle_t xQueueData;
 
-// não mexer! Alimenta a fila com os dados do sinal
+
 void data_task(void *p) {
     vTaskDelay(pdMS_TO_TICKS(400));
 
@@ -25,15 +25,21 @@ void data_task(void *p) {
 
 void process_task(void *p) {
     int data = 0;
-
+    int movel[5];
     while (true) {
+
         if (xQueueReceive(xQueueData, &data, 100)) {
-            // implementar filtro aqui!
+            movel[0] = movel[1];
+            movel[1] = movel[2];
+            movel[2] = movel[3];
+            movel[3] = movel[4];
+            movel[4] = data;
 
 
+            int mediaMovel = (movel[0] + movel[1] + movel[2] + movel[3] + movel[4]) / 5; 
 
+            printf("%d \n",mediaMovel);
 
-            // deixar esse delay!
             vTaskDelay(pdMS_TO_TICKS(50));
         }
     }
@@ -44,8 +50,8 @@ int main() {
 
     xQueueData = xQueueCreate(64, sizeof(int));
 
-    xTaskCreate(data_task, "Data task ", 4096, NULL, 1, NULL);
-    xTaskCreate(process_task, "Process task", 4096, NULL, 1, NULL);
+    xTaskCreate(data_task, "task dado", 4096, NULL, 1, NULL);
+    xTaskCreate(process_task, "task processo", 4096, NULL, 1, NULL);
 
     vTaskStartScheduler();
 
